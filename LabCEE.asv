@@ -104,13 +104,13 @@
 mean_array = zeros(10, 10);
 
 for i=1:20
-    for j=1:20
+    for j=1:10
         close all
         figure
         T =10;
         ganho = i/4;
         Qr = diag([100*ganho,1,800*ganho,1,1]); %Weight Matrix for x in the integral
-        Rr = j/2; %Weight for the input variable
+        Rr = j; %Weight for the input variable
         K = lqr(A, B, Qr, Rr);
 
         G = eye(size(A)); %Gain of the process noise
