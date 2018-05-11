@@ -144,10 +144,9 @@ for i=1:20
         % plot(t,y-y2)
         % legend('alfa','beta')
         % 
-%         y_ref = [zeros(); 0];
+        y_ref = [zeros(); 0];
 
-%         mean = sum((y-y_ref).^2);
-        mean = sum(y.^2);
+        mean = sum((y-y_ref).^2);
         mean_array(i, j) = mean(1)+mean(2);
         waitbar((i+j) / 40, 'Calculating metrics')
     end
