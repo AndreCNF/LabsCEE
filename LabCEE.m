@@ -2,7 +2,7 @@
 %
 % Andre Ferreira 81715
 % Jose Miragaia 81567
-% João Ornelas 79681
+% Jo?o Ornelas 79681
 % 
 load('fp_lin_matrices_fit3.mat');
 
@@ -202,7 +202,8 @@ surf(mean_array);
 xlabel('0.01*Q_{r_{33}}');
 ylabel('0.01*Q_{r_{11}}');
 
-%% Q 10 inserção de bloco de backlash para aproximar a simulação do caso real
+%% Q10 
+% Inserting a backlash block to further approximate the simulation to real life
 x_0=[0.1 0 0 0 0]';
 figure
 T =10;
