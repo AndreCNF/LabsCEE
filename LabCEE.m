@@ -2,9 +2,9 @@
 %
 % Andre Ferreira 81715
 % Jose Miragaia 81567
-% Jo?o Ornelas 79681
+% João Ornelas 79681
 % 
-%load('fp_lin_matrices_fit3.mat');
+load('fp_lin_matrices_fit3.mat');
 
 %% Q1
 
@@ -201,3 +201,36 @@ end
 surf(mean_array);
 xlabel('0.01*Q_{r_{33}}');
 ylabel('0.01*Q_{r_{11}}');
+
+%% Q 10 inserção de bloco de backlash para aproximar a simulação do caso real
+x_0=[0.1 0 0 0 0]';
+figure
+T =10;
+ganho = 1;
+Qr = diag([1600,1,1200,1,1]); %Weight Matrix for x in the integral
+Rr = 1; %Weight for the input variable
+K = lqr(A, B, Qr, Rr);
+
+G = eye(size(A)); %Gain of the process noise
+Qe = eye(size(A))*300; %Variance of process errors
+Re = eye(2); %Variance of measurement errors
+L = lqe(A, G, C, Qe, Re); %Calculate estimator gains
+
+
+D1=[0 0 0 0 0;0 0 0 0 0]';
+D2 =D';
+A2 = A-B*K-L*C;
+C2 = -K;
+B2 = L;
+D3 = [D D];
+nome = sim('backlash.slx',T);
+
+gg=plot(t,y);% only plot the 3rd coordinate corresponding to beta
+set(gg,'LineWidth',1.5);
+
+gg=xlabel('Time (s)');
+set(gg,'Fontsize',14);
+gg=ylabel('angles (rad)');
+set(gg,'Fontsize',14);
+gg = legend('alfa','beta');
+set(gg,'Fontsize',14);
