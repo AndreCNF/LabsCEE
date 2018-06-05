@@ -1,0 +1,218 @@
+%% Laboratorios de CEE
+%
+% 
+%load('fp_lin_matrices_fit3.mat');
+
+%% 1
+
+% eig_lbd = eig(A);
+% 
+% %%
+% % One of the eigenvalues has a positive real part, which makes the system
+% % unstable.
+% 
+% %% 2
+% 
+% Ctr_M = ctrb(A, B);
+% rank_C = rank(Ctr_M);
+% 
+% %%
+% % As rank(Controllability matrix) = #(row of A), the system is controllable.
+% 
+% %% 3
+% 
+% % Measure only x3
+% C1 = [0 0 1 0 0];
+% 
+% % Measure x1 and x3
+% C2 = [1 0 0 0 0;
+%       0 0 1 0 0];
+%   
+% % Check observability matrix and its rank for case 1
+% Obsr_M1 = obsv(A, C1);
+% rank_O1 = rank(Obsr_M1);
+% 
+% % Check observability matrix and its rank for case 2
+% Obsr_M2 = obsv(A, C2);
+% rank_O2 = rank(Obsr_M2);
+% 
+% %%
+% % rank(Observability matrix of case 1) < #(row of A) which means that the
+% % system isn't observable if the only output is x3.
+% % rank(Observability matrix of case 2) = #(row of A) which means that the
+% % system is observable if the output is x1 and x3.
+% 
+% %% 4
+% 
+% % Get numerator and denominator of the transfer function
+% [NUM,DEN] = ss2tf(A, B, C, D);
+% 
+% % Create the transfer function's system object
+% sys_alpha = tf(NUM(1, :), DEN);
+% sys_beta = tf(NUM(2, :), DEN);
+% 
+% % Minimum and maximum frequencies for the bode plot
+% Wmin = 0;
+% Wmax = 50;
+% 
+% figure;
+% bode(sys_alpha);
+% title('Alpha transfer function bode');
+% 
+% figure;
+% bode(sys_beta);
+% title('Beta transfer function bode');
+% % bode(SYS,{Wmin,WMmax});
+% 
+% %%
+% figure 
+% hold on
+% 
+% 
+% for i=1:3:12
+% 
+% 
+% T = 5;
+% Qr = diag([4,1,2,1,1]); %Weight Matrix for x in the integral
+% Rr = i; %Weight for the input variable
+% K = lqr(A, B, Qr, Rr); %Calculate feedback gain
+% %----------------------------------------------------------------------
+% % Simulate controller
+% x_0=[0.1 0 0 0 0]';% insert here the inital conditions -> id all 0 nothing should happen 
+% D1=[0 0 0 0 0]';
+% %
+% 
+%  C1 = eye(5);
+% T=2; % Time duration of the simulation
+% 
+%  sim('basic.slx',T);
+% 
+% gg=plot(t,x(:,3));% only plot the 3rd coordinate corresponding to beta
+% set(gg,'LineWidth',1.5)
+% gg=xlabel('Time (s)');
+% set(gg,'Fontsize',14);
+% gg=ylabel('\beta (rad)');
+% set(gg,'Fontsize',14);
+% 
+% end
+% 
+
+%%
+
+mean_array = zeros(10, 10);
+
+for i=1:20
+    
+    for j=1:20
+        
+ 
+        T =10;
+        ganho = i/4;
+        Qr = diag([100*ganho,1,800*ganho,1,1]); %Weight Matrix for x in the integral
+        Rr = j/2; %Weight for the input variable
+        K = lqr(A, B, Qr, Rr);
+
+        G = eye(size(A)); %Gain of the process noise
+        Qe = eye(size(A))*800; %Variance of process errors
+        Re = eye(2); %Variance of measurement errors
+        L = lqe(A, G, C, Qe, Re); %Calculate estimator gains
+
+
+        D1=[0 0 0 0 0;0 0 0 0 0]';
+        D2 =D';
+        A2 = A-B*K-L*C;
+        C2 = -K;
+        B2 = L;
+        D3 = [D D];
+        nome = sim('observer.slx',T);
+
+        % gg=plot(t,y);% only plot the 3rd coordinate corresponding to beta
+        % set(gg,'LineWidth',1.5);
+        % gg=xlabel('Time (s)');
+        % set(gg,'Fontsize',14);
+        % gg=ylabel('angles (rad)');
+        % set(gg,'Fontsize',14);
+        % gg = legend('alfa','beta');
+        % set(gg,'Fontsize',14);
+
+        % 
+        % figure
+        % hold on 
+        % 
+        % plot(t,y-y2)
+        % legend('alfa','beta')
+        % 
+        y_ref = 0;
+
+        mean = sum((y-y_ref).^2);
+        mean_array(i, j) = mean(1)+mean(2);
+    end
+end
+
+%  eig(A-L*C)
+% 
+% eig(A-B*K)
+% track_error=y(end)-y_ref;
+
+
+%end
+
+%plot(1:20,mean(1))
+
+%%
+
+
+
+close all
+
+x_0=[0.1 0 0 0 0]';
+figure
+T =10;
+ganho = 1;
+Qr = diag([100*ganho,1,800*ganho,1,1]); %Weight Matrix for x in the integral
+Rr = 1; %Weight for the input variable
+K = lqr(A, B, Qr, Rr);
+
+G = eye(size(A)); %Gain of the process noise
+Qe = eye(size(A))*300; %Variance of process errors
+Re = eye(2); %Variance of measurement errors
+L = lqe(A, G, C, Qe, Re); %Calculate estimator gains
+
+%refBeta = 10;
+%C3 = [1 0 0 0 0];
+% N = inv([A-eye(size(A)),B;C3,0])*[zeros(size(A,1),1);1];
+% Nx = N(1:end-1,:);
+% Nu = N(end,:);
+% Nbar = Nu+K*Nx;
+
+D1=[0 0 0 0 0;0 0 0 0 0]';
+D2 =D';
+A2 = A-B*K-L*C;
+C2 = -K;
+B2 = L;
+D3 = [D D];
+nome = sim('observer.slx',T);
+
+gg=plot(t,y);% only plot the 3rd coordinate corresponding to beta
+set(gg,'LineWidth',1.5);
+
+gg=xlabel('Time (s)');
+set(gg,'Fontsize',14);
+gg=ylabel('angles (rad)');
+set(gg,'Fontsize',14);
+gg = legend('alfa','beta');
+set(gg,'Fontsize',14);
+
+%%
+figure
+hold on 
+
+plot(t,y-y2)
+legend('alfa','beta')
+
+y_ref = 0;
+mean(i,:)=sum((y-y_ref).^2)
+
+eig(A-L*C)
+eig(A-B*K)
+track_error=y(end)-y_ref;
