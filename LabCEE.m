@@ -199,5 +199,5 @@ for i= 1:50
 end
 
 surf(mean_array);
-xlabel('0.01*Q_{r_{11}}');
-ylabel('0.01*Q_{r_{33}}');
+xlabel('0.01*Q_{r_{33}}');
+ylabel('0.01*Q_{r_{11}}');
